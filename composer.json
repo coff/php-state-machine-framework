@@ -1,0 +1,20 @@
+{
+  "name": "coff/state-machine-framework",
+  "description": "State Machine Framework PHP component for designing state machines",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Krzysztof Kubanek",
+      "email": "krzysztof.kubanek@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Coff\\SMF\\": "src/"
+    }
+  },
+  "require": {
+    "garoevans/php-enum": "^1.2"
+  }
+}
