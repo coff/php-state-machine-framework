@@ -11,7 +11,8 @@
   ],
   "autoload": {
     "psr-4": {
-      "Coff\\SMF\\": "src/"
+      "Coff\\SMF\\": "src/",
+      "Coff\\SMF\\Example": "example/"
     }
   },
   "require": {

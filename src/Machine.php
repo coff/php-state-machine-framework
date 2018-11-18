@@ -20,7 +20,11 @@ abstract class Machine implements MachineInterface
     private $allowedTransitions;
 
 
-
+    /**
+     * @param TransitionInterface $transition
+     * @return $this
+     * @throws MachineException
+     */
     public function allowTransition(TransitionInterface $transition) {
 
         if (!$transition->getFromState() instanceof StateEnum) {

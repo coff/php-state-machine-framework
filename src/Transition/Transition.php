@@ -13,6 +13,12 @@ class Transition implements TransitionInterface
     /** @var StateEnum */
     protected $toState;
 
+    public function __construct(StateEnum $fromState, StateEnum $toState)
+    {
+        $this->fromState = $fromState;
+        $this->toState = $toState;
+    }
+
     /**
      * @param StateEnum $state
      * @return $this
