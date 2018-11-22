@@ -1,11 +1,14 @@
 <?php
 
-
 namespace Coff\SMF;
 
 
+use Coff\SMF\Assertion\Assertion;
+use Coff\SMF\Assertion\CommonCallbackAssertion;
+use Coff\SMF\Assertion\DefaultCallbackAssertion;
 use Coff\SMF\Exception\MachineException;
 use Coff\SMF\Exception\TransitionException;
+use Coff\SMF\Transition\Transition;
 use Coff\SMF\Transition\TransitionInterface;
 
 abstract class Machine implements MachineInterface
@@ -14,18 +17,63 @@ abstract class Machine implements MachineInterface
     private $machineState;
 
     /** @var StateEnum */
-    private $defaultState;
+    private $initState;
 
     /** @var array $allowedTransitions allowed transitions map */
     private $allowedTransitions;
 
 
     /**
+     * Allows certain transition by creating a new Transition object internally
+     * @param StateEnum $stateFrom
+     * @param StateEnum $stateTo
+     * @param Assertion $assertion
+     * @return $this
+     */
+    public function allowTransition(StateEnum $stateFrom, StateEnum $stateTo, Assertion $assertion = null)
+    {
+        $transition = new Transition($stateFrom, $stateTo);
+
+        /*
+         * Default assertion when no assertions
+         */
+        if (null == $assertion)
+        {
+            $assertion = new DefaultCallbackAssertion();
+        }
+
+        $transition->addAssertion($assertion);
+
+
+        /*
+         * Wire it up
+         */
+        switch (true) {
+            case $assertion instanceof CommonCallbackAssertion:
+                // no break
+            case $assertion instanceof DefaultCallbackAssertion:
+                // autowire these
+                $assertion->setObject($this);
+                $assertion->setTransition($transition);
+                break;
+        }
+
+        try {
+            $this->addTransition($transition);
+        } catch (MachineException $e) {
+            // It won't fire this exception when called from here anyway
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds transition object to Machine
      * @param TransitionInterface $transition
      * @return $this
      * @throws MachineException
      */
-    public function allowTransition(TransitionInterface $transition) {
+    public function addTransition(TransitionInterface $transition) {
 
         if (!$transition->getFromState() instanceof StateEnum) {
             throw new MachineException('Transition is not ready to be set as allowed!');
@@ -35,10 +83,23 @@ abstract class Machine implements MachineInterface
             throw new MachineException('Transition is not ready to be set as allowed!');
         }
 
-
         $this->allowedTransitions[(string)$transition->getFromState()][(string)$transition->getToState()] = $transition;
 
         return $this;
+    }
+
+    /**
+     * @param StateEnum $stateFrom
+     * @param StateEnum $stateTo
+     * @return Transition
+     * @throws MachineException
+     */
+    public function getTransition(StateEnum $stateFrom, StateEnum $stateTo) {
+        if (isset($this->allowedTransitions[(string)$stateFrom][(string)$stateTo])) {
+            return $this->allowedTransitions[(string)$stateFrom][(string)$stateTo];
+        } else {
+            throw new MachineException('No transition object for ' . $stateFrom . ' to ' . $stateTo);
+        }
     }
 
 
@@ -51,33 +112,42 @@ abstract class Machine implements MachineInterface
         return $this->allowedTransitions[(string)$state];
     }
 
-    public function isTransitionAllowed(StateEnum $state) {
+    public function isTransitionAllowed(StateEnum $state)
+    {
         return isset($this->allowedTransitions[(string)$this->getMachineState()][$state]) ? true : false;
     }
 
-    public function getMachineState()
+    public function getMachineState() : StateEnum
     {
         return $this->machineState;
     }
 
-    public function isMachineState(StateEnum $state)
+    public function isMachineState(StateEnum $state) : bool
     {
         return (string) $this->getMachineState() == (string) $state ? true : false;
     }
 
-    public function setDefaultState(StateEnum $state) {
-        $this->defaultState = $state;
+    public function setInitState(StateEnum $state)
+    {
+        $this->initState = $state;
 
         return $this;
     }
 
-    public function assertState() {
+    public function assertTransition(Transition $transition) : bool
+    {
+
+        // default method just returns true
+        return true;
+    }
+
+    public function run() {
 
         $allowedTrans = $this->getAllowedTransitions();
 
         /**
          * @var StateEnum $nextState
-         * @var Criteria $transition
+         * @var Transition $transition
          */
         foreach ($allowedTrans as $nextState => $transition) {
 
@@ -90,6 +160,56 @@ abstract class Machine implements MachineInterface
         }
 
         return false;
+    }
+
+    public function validate() {
+
+        $allowedTrans = $this->getAllowedTransitions($this->getInitState());
+
+        /**
+         * @var StateEnum $nextState
+         * @var Transition $transition
+         */
+        foreach ($allowedTrans as $nextState => $transition) {
+
+
+            if (true === $transition->assert()) {
+                $this->machineState = $transition->getToState();
+
+                return $nextState;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param StateEnum $state
+     */
+    private function doValidate(StateEnum $state) {
+
+        $allowedTrans = $this->getAllowedTransitions($state);
+
+        if (0 === count($allowedTrans)) {
+            return false;
+        }
+
+        /**
+         * @var StateEnum $nextState
+         * @var Transition $transition
+         */
+        foreach ($allowedTrans as $nextState => $transition) {
+
+            if ($transition->getToState() === $this->getInitState()) {
+                // transition path ends on initial state
+            } else {
+                if (false === $this->doValidate($transition->getToState())) {
+
+                }
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -2,13 +2,53 @@
 
 namespace Coff\SMF;
 
+use Coff\SMF\Exception\MachineException;
+use Coff\SMF\Transition\Transition;
+
 interface MachineInterface
 {
-    public function setDefaultState(StateEnum $state);
+    /**
+     * @param StateEnum $state
+     * @return $this
+     */
+    public function setInitState(StateEnum $state);
 
-    public function getMachineState();
 
-    public function isMachineState(StateEnum $state);
+    /**
+     * Returns Machine's initial state
+     * @return StateEnum
+     */
+    public function getInitState();
 
-    public function assertState();
+    /**
+     * Returns
+     * @return StateEnum
+     */
+    public function getMachineState() : StateEnum;
+
+    /**
+     * Checks whether machine is in certain state
+     * @param StateEnum $state
+     * @return bool
+     */
+    public function isMachineState(StateEnum $state) : bool;
+
+    /**
+     * Default transition assertion method for CommonCallbackAssertion
+     * @param Transition $transition
+     * @return bool
+     */
+    public function assertTransition(Transition $transition) : bool;
+
+    /**
+     * Runs state machine. Performs assertions for all transitions defined for current state.
+     * @return mixed
+     */
+    public function run();
+
+    /**
+     * Validates transition cycle
+     * @throws MachineException
+     */
+    public function validate();
 }
