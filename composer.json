@@ -16,6 +16,7 @@
     }
   },
   "require": {
+    "php": "^7.0",
     "garoevans/php-enum": "^1.2"
   }
 }
