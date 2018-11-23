@@ -24,21 +24,21 @@ interface MachineInterface
      * Returns
      * @return StateEnum
      */
-    public function getMachineState() : StateEnum;
+    public function getMachineState(): StateEnum;
 
     /**
      * Checks whether machine is in certain state
      * @param StateEnum $state
      * @return bool
      */
-    public function isMachineState(StateEnum $state) : bool;
+    public function isMachineState(StateEnum $state): bool;
 
     /**
      * Default transition assertion method for CommonCallbackAssertion
      * @param Transition $transition
      * @return bool
      */
-    public function assertTransition(Transition $transition) : bool;
+    public function assertTransition(Transition $transition): bool;
 
     /**
      * This method is called on any state transition

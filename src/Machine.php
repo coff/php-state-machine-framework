@@ -2,7 +2,6 @@
 
 namespace Coff\SMF;
 
-
 use Coff\SMF\Assertion\Assertion;
 use Coff\SMF\Assertion\CommonCallbackAssertion;
 use Coff\SMF\Assertion\DefaultCallbackAssertion;
@@ -34,20 +33,14 @@ abstract class Machine implements MachineInterface
     {
         $transition = new Transition($stateFrom, $stateTo);
 
-        /*
-         * Default assertion when no assertions
-         */
-        if (null == $assertion)
-        {
+        // Default assertion when no assertions
+        if (null == $assertion) {
             $assertion = new DefaultCallbackAssertion();
         }
 
         $transition->addAssertion($assertion);
 
-
-        /*
-         * Wire it up
-         */
+        // Wire it up
         switch (true) {
             case $assertion instanceof CommonCallbackAssertion:
                 // no break
@@ -73,7 +66,8 @@ abstract class Machine implements MachineInterface
      * @return $this
      * @throws MachineException
      */
-    public function addTransition(TransitionInterface $transition) {
+    public function addTransition(TransitionInterface $transition)
+    {
 
         if (!$transition->getFromState() instanceof StateEnum) {
             throw new MachineException('Transition is not ready to be set as allowed!');
@@ -89,12 +83,83 @@ abstract class Machine implements MachineInterface
     }
 
     /**
+     * Verifies if machine's current state is equal to state given in parameter
+     *
+     * @param StateEnum $state
+     * @return bool
+     */
+    public function isMachineState(StateEnum $state): bool
+    {
+        return (string)$this->getMachineState() == (string)$state ? true : false;
+    }
+
+    /**
+     * Returns machine's current state
+     * @return StateEnum
+     */
+    public function getMachineState(): StateEnum
+    {
+        return $this->machineState;
+    }
+
+    /**
+     * Machine-internal method for setting new state. Normally this should only be allowed from within the machine
+     * assertState() method. To set machine's state externally create dedicated methods like:
+     *
+     * public function on() {
+     *      $this->setMachineState(...);
+     * }
+     *
+     * @param $newState
+     * @return $this
+     * @throws TransitionException
+     * @throws MachineException
+     */
+    protected function setMachineState(StateEnum $newState)
+    {
+
+        if (false === $this->isTransitionAllowed($newState)) {
+            throw new TransitionException('State transition from ' . (string)$this->getMachineState() . ' to ' . (string)$newState . 'is not allowed.');
+        }
+
+        $oldState = $this->machineState;
+
+        $this->machineState = $newState;
+
+        $this->onTransition($this->getTransition($oldState, $newState));
+
+        return $this;
+    }
+
+    /**
+     * Verifies if transition is allowed from current state to the state given in parameter
+     * @param StateEnum $state
+     * @return bool
+     */
+    public function isTransitionAllowed(StateEnum $state): bool
+    {
+        return isset($this->allowedTransitions[(string)$this->getMachineState()][$state]) ? true : false;
+    }
+
+    /**
+     * Method called on any state transition occurence
+     * @param Transition $transition
+     * @return MachineInterface|void
+     */
+    public function onTransition(Transition $transition)
+    {
+        // Default implementation does nothing. This can be used to dispatch events in kind-of EventAwareMachine you can
+        // implement yourself.
+    }
+
+    /**
      * @param StateEnum $stateFrom
      * @param StateEnum $stateTo
      * @return Transition
      * @throws MachineException
      */
-    public function getTransition(StateEnum $stateFrom, StateEnum $stateTo) {
+    public function getTransition(StateEnum $stateFrom, StateEnum $stateTo)
+    {
         if (isset($this->allowedTransitions[(string)$stateFrom][(string)$stateTo])) {
             return $this->allowedTransitions[(string)$stateFrom][(string)$stateTo];
         } else {
@@ -102,31 +167,11 @@ abstract class Machine implements MachineInterface
         }
     }
 
-
-    public function getAllowedTransitions(StateEnum $state = null) : array {
-
-        if (null === $state) {
-            $state = $this->getMachineState();
-        }
-
-        return $this->allowedTransitions[(string)$state];
-    }
-
-    public function isTransitionAllowed(StateEnum $state)
-    {
-        return isset($this->allowedTransitions[(string)$this->getMachineState()][$state]) ? true : false;
-    }
-
-    public function getMachineState() : StateEnum
-    {
-        return $this->machineState;
-    }
-
-    public function isMachineState(StateEnum $state) : bool
-    {
-        return (string) $this->getMachineState() == (string) $state ? true : false;
-    }
-
+    /**
+     * Sets machine's initial state
+     * @param StateEnum $state
+     * @return $this|MachineInterface
+     */
     public function setInitState(StateEnum $state)
     {
         $this->initState = $state;
@@ -134,18 +179,24 @@ abstract class Machine implements MachineInterface
         return $this;
     }
 
-    public function assertTransition(Transition $transition) : bool
+    /**
+     * Default handler method for CommonCallbackAssertion
+     * @param Transition $transition
+     * @return bool
+     */
+    public function assertTransition(Transition $transition): bool
     {
-
         // default method just returns true
         return true;
     }
 
     /**
+     * Runs the machine as far as following transitions return true
      * @return StateEnum
      * @throws TransitionException
      */
-    public function run() {
+    public function run()
+    {
 
         do {
             $result = false;
@@ -172,32 +223,18 @@ abstract class Machine implements MachineInterface
         return $this->machineState;
     }
 
-
     /**
-     * Machine-internal method for setting new state. Normally this should only be allowed from within the machine
-     * assertState() method. To set machine's state externally create dedicated methods like:
-     *
-     * public function on() {
-     *      $this->setMachineState(...);
-     * }
-     *
-     * @param $newState
-     * @return $this
-     * @throws TransitionException
-     * @throws MachineException
+     * Returns Transitions allowed for current state or state specified in parameter
+     * @param StateEnum|null $state
+     * @return array
      */
-    protected function setMachineState(StateEnum $newState) {
+    public function getAllowedTransitions(StateEnum $state = null): array
+    {
 
-        if (false === $this->isTransitionAllowed($newState)){
-            throw new TransitionException('State transition from ' . (string) $this->getMachineState() . ' to ' . (string) $newState . 'is not allowed.');
+        if (null === $state) {
+            $state = $this->getMachineState();
         }
 
-        $oldState = $this->machineState;
-
-        $this->machineState = $newState;
-
-        $this->onTransition($this->getTransition($oldState, $newState));
-
-        return $this;
+        return $this->allowedTransitions[(string)$state];
     }
 }

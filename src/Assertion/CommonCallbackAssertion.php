@@ -15,24 +15,24 @@ class CommonCallbackAssertion extends CallbackAssertion
 
     /** @var TransitionInterface $transition */
     protected $transition;
-    
+
     public function __construct()
     {
         parent::__construct();
     }
-    
-    
-    public function setObject(MachineInterface $object) 
+
+
+    public function setObject(MachineInterface $object)
     {
         $this->object = $object;
-        
-        return $this;    
+
+        return $this;
     }
-    
-    public function setTransition(TransitionInterface $transition) 
+
+    public function setTransition(TransitionInterface $transition)
     {
-        $this->transition = $transition;    
-        
+        $this->transition = $transition;
+
         return $this;
     }
 
@@ -42,12 +42,9 @@ class CommonCallbackAssertion extends CallbackAssertion
      */
     public function make(): bool
     {
-        if ($this->object instanceof MachineInterface && $this->transition instanceof TransitionInterface) 
-        {
-            return call_user_func_array([$this->object,'assertTransition'], [$this->transition]);
-        }
-        else 
-        {
+        if ($this->object instanceof MachineInterface && $this->transition instanceof TransitionInterface) {
+            return call_user_func_array([$this->object, 'assertTransition'], [$this->transition]);
+        } else {
             throw new AssertionException('Callback not configured!');
         }
     }

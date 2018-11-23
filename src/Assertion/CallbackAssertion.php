@@ -21,13 +21,15 @@ class CallbackAssertion extends Assertion
         $this->params = $params;
     }
 
-    public function setCallback(callable $callback) {
+    public function setCallback(callable $callback)
+    {
         $this->callback = $callback;
 
         return $this;
     }
 
-    public function setParams($params = []) {
+    public function setParams($params = [])
+    {
         $this->params = $params;
 
         return $this;
@@ -41,8 +43,7 @@ class CallbackAssertion extends Assertion
     {
         if ($this->callback) {
             return call_user_func_array($this->callback, $this->params);
-        }
-        else {
+        } else {
             throw new AssertionException('Callback not configured!');
         }
     }

@@ -12,9 +12,9 @@ interface TransitionInterface
 
     public function setToState(StateEnum $state);
 
-    public function getFromState() : StateEnum;
+    public function getFromState(): StateEnum;
 
-    public function getToState() : StateEnum;
+    public function getToState(): StateEnum;
 
-    public function assert() : bool;
+    public function assert(): bool;
 }

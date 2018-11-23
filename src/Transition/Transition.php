@@ -26,6 +26,14 @@ class Transition implements TransitionInterface
     }
 
     /**
+     * @return StateEnum
+     */
+    public function getFromState(): StateEnum
+    {
+        return $this->fromState;
+    }
+
+    /**
      * @param StateEnum $state
      * @return $this
      */
@@ -34,6 +42,14 @@ class Transition implements TransitionInterface
         $this->fromState = $state;
 
         return $this;
+    }
+
+    /**
+     * @return StateEnum
+     */
+    public function getToState(): StateEnum
+    {
+        return $this->toState;
     }
 
     /**
@@ -48,30 +64,13 @@ class Transition implements TransitionInterface
     }
 
     /**
-     * @return StateEnum
-     */
-    public function getFromState() : StateEnum
-    {
-        return $this->fromState;
-    }
-
-    /**
-     * @return StateEnum
-     */
-    public function getToState() : StateEnum
-    {
-        return $this->toState;
-    }
-
-    /**
      * @param Assertion $assertion
      * @param null $keyName
      * @return $this
      */
-    public function addAssertion(Assertion $assertion, $keyName=null)
+    public function addAssertion(Assertion $assertion, $keyName = null)
     {
-        if (null === $keyName)
-        {
+        if (null === $keyName) {
             $this->assertions[] = $assertion;
         } else {
             $this->assertions[$keyName] = $assertion;
@@ -88,8 +87,7 @@ class Transition implements TransitionInterface
      */
     public function removeAssertion($keyName)
     {
-        if (false === isset($this->assertions[$keyName]))
-        {
+        if (false === isset($this->assertions[$keyName])) {
             throw new TransitionException('Assertion by name ' . $keyName . ' not defined');
         }
 
@@ -126,7 +124,7 @@ class Transition implements TransitionInterface
      * @return bool
      * @throws TransitionException
      */
-    public function assert() : bool
+    public function assert(): bool
     {
         if (!$this->assertions) {
             throw new TransitionException('No assertions defined');
@@ -134,13 +132,11 @@ class Transition implements TransitionInterface
 
         // check all assertion objects attached
         foreach ($this->assertions as $assertion) {
-            if (!$assertion instanceof AssertionInterface)
-            {
+            if (!$assertion instanceof AssertionInterface) {
                 throw new TransitionException('Assertion has to implement AssertionInterface');
             }
 
-            if (false === $assertion->make())
-            {
+            if (false === $assertion->make()) {
                 return false;
             }
         }
