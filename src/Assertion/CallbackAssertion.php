@@ -33,6 +33,10 @@ class CallbackAssertion extends Assertion
         return $this;
     }
 
+    /**
+     * @return bool
+     * @throws AssertionException
+     */
     public function make(): bool
     {
         if ($this->callback) {

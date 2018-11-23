@@ -141,9 +141,14 @@ abstract class Machine implements MachineInterface
         return true;
     }
 
+    /**
+     * @return StateEnum
+     * @throws TransitionException
+     */
     public function run() {
 
         do {
+            $result = false;
 
             $allowedTrans = $this->getAllowedTransitions();
 
@@ -179,6 +184,7 @@ abstract class Machine implements MachineInterface
      * @param $newState
      * @return $this
      * @throws TransitionException
+     * @throws MachineException
      */
     protected function setMachineState(StateEnum $newState) {
 

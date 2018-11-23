@@ -35,7 +35,11 @@ class DefaultCallbackAssertion extends CallbackAssertion
         
         return $this;
     }
-    
+
+    /**
+     * @return bool
+     * @throws AssertionException
+     */
     public function make(): bool
     {
         if ($this->object instanceof MachineInterface && $this->transition instanceof TransitionInterface) 

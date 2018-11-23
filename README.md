@@ -1,15 +1,16 @@
 
+*Remark: It's a work-in-progress project! Wanna contribute? Let me know.*
+
 # State Machine Framework for PHP
 
-State Machines are not what you usually do with PHP but when you do... just use this.
+Maybe state machines are not what you usually do with PHP but when you do... just use this.
 
-  
-It's a work-in-progress project! Wanna contribute? Let me know.
 
-Usage example:
+## Usage example
+
+### State dictionary
 
 ```php
-<?php 
     
     class PetitionEnum extends StateEnum {
         const __default     = self::DRAFT,
@@ -21,7 +22,10 @@ Usage example:
               CANCELED      = 'canceled';
               
     }
+```
+### Machine class
 
+```php
     class Petition extends Machine {
         
         protected $votesYes, $votesNo;
@@ -29,6 +33,7 @@ Usage example:
         public function init() {
             $this->setInitState(PetitionEnum::DRAFT());
             
+            // defines machine's allowed behavior, when no Assertion is given uses DefaultCallbackAssertion
             $this
                 ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT())
                 ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED())
@@ -60,33 +65,19 @@ Usage example:
         
         public function assertSentToVoted() 
         {
-            if (null !== $this->votesYes && null !== $this->votesNo)
-            {
-                return true;
-            }
-            
-            return false;
+            // Method name used here is based upon DefaultCallbackAssertion. This can be changed though.
+            return (null !== $this->votesYes && null !== $this->votesNo) ? true : false;
         }
         
         
         public function assertVotedToAccepted()
         {
-            if ($this->votesYes > $this->votesNo) 
-            { 
-                return true;
-            }
-            
-            return false;
+            return $this->votesYes > $this->votesNo ? true : false;
         }
         
         public function assertVotedToRejected() 
         {
-            if ($this->votesYes <= $this->votesNo)
-            {
-                return true;
-            }    
-            
-            return false;
+            return $this->votesYes <= $this->votesNo ? true : false;
         }
         
         public function onTransition(Transition $transition) 
@@ -96,8 +87,12 @@ Usage example:
             echo 'State changed from ' . $transition->getFromState() . ' to ' . $transition->getToState() . PHP_EOL;
         }
     }
+```
+
+### Machine in-use    
     
-    
+```php
+
     $p = new Petition();
     
     $p->run();
@@ -114,10 +109,6 @@ Usage example:
     $p->run();
     // State changed from sent to voted
     // State changed from voted to accepted
-    
-    
-    
-    
     
 ```    
     
