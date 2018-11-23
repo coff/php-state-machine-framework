@@ -41,6 +41,13 @@ interface MachineInterface
     public function assertTransition(Transition $transition) : bool;
 
     /**
+     * This method is called on any state transition
+     * @param Transition $transition
+     * @return $this
+     */
+    public function onTransition(Transition $transition);
+
+    /**
      * Runs state machine. Performs assertions for all transitions defined for current state.
      * @return mixed
      */

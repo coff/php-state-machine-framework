@@ -10,11 +10,7 @@ namespace Coff\SMF\Assertion;
  *
  * @package Coff\SMF\Assertion
  */
-class Assertion implements AssertionInterface
+abstract class Assertion implements AssertionInterface
 {
 
-    public function make() : bool
-    {
-        return true;
-    }
 }

@@ -6,7 +6,7 @@ namespace Coff\SMF\Assertion;
 /**
  * False Assertion for unit testing
  */
-class FalseAssertion extends Assertion
+class AlwaysFalseAssertion extends Assertion
 {
     public function make(): bool
     {

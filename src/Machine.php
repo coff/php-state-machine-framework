@@ -143,74 +143,30 @@ abstract class Machine implements MachineInterface
 
     public function run() {
 
-        $allowedTrans = $this->getAllowedTransitions();
+        do {
 
-        /**
-         * @var StateEnum $nextState
-         * @var Transition $transition
-         */
-        foreach ($allowedTrans as $nextState => $transition) {
+            $allowedTrans = $this->getAllowedTransitions();
 
+            /**
+             * @var StateEnum $nextState
+             * @var Transition $transition
+             */
+            foreach ($allowedTrans as $nextState => $transition) {
 
-            if (true === $transition->assert()) {
-                $this->machineState = $transition->getToState();
+                $result = $transition->assert();
 
-                return $nextState;
-            }
-        }
+                if (true === $result) {
+                    $this->machineState = $transition->getToState();
 
-        return false;
-    }
-
-    public function validate() {
-
-        $allowedTrans = $this->getAllowedTransitions($this->getInitState());
-
-        /**
-         * @var StateEnum $nextState
-         * @var Transition $transition
-         */
-        foreach ($allowedTrans as $nextState => $transition) {
-
-
-            if (true === $transition->assert()) {
-                $this->machineState = $transition->getToState();
-
-                return $nextState;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param StateEnum $state
-     */
-    private function doValidate(StateEnum $state) {
-
-        $allowedTrans = $this->getAllowedTransitions($state);
-
-        if (0 === count($allowedTrans)) {
-            return false;
-        }
-
-        /**
-         * @var StateEnum $nextState
-         * @var Transition $transition
-         */
-        foreach ($allowedTrans as $nextState => $transition) {
-
-            if ($transition->getToState() === $this->getInitState()) {
-                // transition path ends on initial state
-            } else {
-                if (false === $this->doValidate($transition->getToState())) {
-
+                    $this->onTransition($transition);
                 }
             }
-        }
 
-        return true;
+        } while (true == $result);
+
+        return $this->machineState;
     }
+
 
     /**
      * Machine-internal method for setting new state. Normally this should only be allowed from within the machine
@@ -230,7 +186,11 @@ abstract class Machine implements MachineInterface
             throw new TransitionException('State transition from ' . (string) $this->getMachineState() . ' to ' . (string) $newState . 'is not allowed.');
         }
 
+        $oldState = $this->machineState;
+
         $this->machineState = $newState;
+
+        $this->onTransition($this->getTransition($oldState, $newState));
 
         return $this;
     }
