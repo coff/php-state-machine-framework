@@ -14,7 +14,7 @@ class CallbackAssertion extends Assertion
     /** @var array */
     protected $params;
 
-    public function __construct(callable $callback = [], array $params = [])
+    public function __construct(callable $callback = null, array $params = [])
     {
         $this->callback = $callback;
 

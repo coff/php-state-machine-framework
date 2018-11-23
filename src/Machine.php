@@ -119,7 +119,7 @@ abstract class Machine implements MachineInterface
     {
 
         if (false === $this->isTransitionAllowed($newState)) {
-            throw new TransitionException('State transition from ' . (string)$this->getMachineState() . ' to ' . (string)$newState . 'is not allowed.');
+            throw new TransitionException('State transition from ' . (string)$this->getMachineState() . ' to ' . (string)$newState . ' is not allowed.');
         }
 
         $oldState = $this->machineState;
@@ -138,11 +138,11 @@ abstract class Machine implements MachineInterface
      */
     public function isTransitionAllowed(StateEnum $state): bool
     {
-        return isset($this->allowedTransitions[(string)$this->getMachineState()][$state]) ? true : false;
+        return isset($this->allowedTransitions[(string)$this->getMachineState()][(string)$state]) ? true : false;
     }
 
     /**
-     * Method called on any state transition occurence
+     * Method called on any state transition occurrence
      * @param Transition $transition
      * @return MachineInterface|void
      */
@@ -176,7 +176,20 @@ abstract class Machine implements MachineInterface
     {
         $this->initState = $state;
 
+        if (null === $this->machineState) {
+            $this->machineState = $state;
+        }
+
         return $this;
+    }
+
+    /**
+     * Returns machine's initial state
+     * @return StateEnum
+     */
+    public function getInitState() : StateEnum
+    {
+        return $this->initState;
     }
 
     /**

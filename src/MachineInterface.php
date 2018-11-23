@@ -2,7 +2,6 @@
 
 namespace Coff\SMF;
 
-use Coff\SMF\Exception\MachineException;
 use Coff\SMF\Transition\Transition;
 
 interface MachineInterface
@@ -53,9 +52,4 @@ interface MachineInterface
      */
     public function run();
 
-    /**
-     * Validates transition cycle
-     * @throws MachineException
-     */
-    public function validate();
 }

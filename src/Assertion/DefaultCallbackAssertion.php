@@ -43,7 +43,10 @@ class DefaultCallbackAssertion extends CallbackAssertion
     public function make(): bool
     {
         if ($this->object instanceof MachineInterface && $this->transition instanceof TransitionInterface) {
-            return call_user_func_array([$this->object, 'assert'], [$this->transition]);
+            return call_user_func_array([
+                $this->object,
+                'assert' . ucfirst($this->transition->getFromState()) . 'To' . ucfirst($this->transition->getToState())
+            ], [$this->transition]);
         } else {
             throw new AssertionException('Callback not configured!');
         }

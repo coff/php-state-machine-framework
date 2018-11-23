@@ -33,10 +33,13 @@ Maybe state machines are not what you usually do with PHP but when you do... jus
         public function init() {
             $this->setInitState(PetitionEnum::DRAFT());
             
-            // defines machine's allowed behavior, when no Assertion is given uses DefaultCallbackAssertion
+            // defines machine's allowed behavior
             $this
-                ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT())
-                ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED())
+                // prevents changing state upon assertion when AlwaysFalseAssertion is given
+                ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT(), new AlwaysFalseAssertion())
+                ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED(), new AlwaysFalseAssertion())
+                
+                // when no Assertion is given uses DefaultCallbackAssertion which calls assertXToY methods
                 ->allowTransition(PetitionEnum::SENT(), PetitionEnum::VOTED())
                 ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::ACCEPTED())
                 ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::REJECTED())
