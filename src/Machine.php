@@ -117,6 +117,10 @@ abstract class Machine implements MachineInterface
      */
     protected function setMachineState(StateEnum $newState)
     {
+        // just return if state doesn't change
+        if ($this->machineState->is((string)$newState)) {
+            return $this;
+        }
 
         if (false === $this->isTransitionAllowed($newState)) {
             throw new TransitionException('State transition from ' . (string)$this->getMachineState() . ' to ' . (string)$newState . ' is not allowed.');
