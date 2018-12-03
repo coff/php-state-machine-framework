@@ -105,6 +105,7 @@ event dispatcher.
 ```php
 
     $p = new Petition();
+    $p->init();
     
     $p->run();
     // <nothing happens>
