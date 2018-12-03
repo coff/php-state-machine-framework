@@ -252,6 +252,6 @@ abstract class Machine implements MachineInterface
             $state = $this->getMachineState();
         }
 
-        return $this->allowedTransitions[(string)$state];
+        return isset($this->allowedTransitions[(string)$state]) ? $this->allowedTransitions[(string)$state] : [];
     }
 }

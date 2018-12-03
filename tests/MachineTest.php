@@ -4,6 +4,10 @@
 namespace Coff\SMF\Test;
 
 
+use Coff\SMF\Assertion\AlwaysFalseAssertion;
+use Coff\SMF\Assertion\AlwaysTrueAssertion;
+use Coff\SMF\Assertion\CommonCallbackAssertion;
+use Coff\SMF\Assertion\DefaultCallbackAssertion;
 use Coff\SMF\Exception\MachineException;
 use Coff\SMF\Exception\TransitionException;
 use Coff\SMF\Transition\Transition;
@@ -15,13 +19,22 @@ class MachineTest extends TestCase
     protected $machine;
 
     /** @var SampleStateEnum */
-    protected $x, $y;
+    protected $x, $y, $z;
 
     public function setUp()
     {
         $this->machine = new SampleMachine();
         $this->x = SampleStateEnum::ONE();
         $this->y = SampleStateEnum::TWO();
+        $this->z = SampleStateEnum::THREE();
+    }
+
+    public function test_setInitState()
+    {
+        $this->machine->setInitState($this->x);
+
+        $this->assertInstanceOf(SampleStateEnum::class, $this->machine->getInitState());
+        $this->assertEquals($this->x, $this->machine->getInitState());
     }
 
     /**
@@ -51,14 +64,6 @@ class MachineTest extends TestCase
         $this->assertEquals($this->y, $this->machine->getInitState());
     }
 
-    public function test_setInitState()
-    {
-        $this->machine->setInitState($this->x);
-
-        $this->assertInstanceOf(SampleStateEnum::class, $this->machine->getInitState());
-        $this->assertEquals($this->x, $this->machine->getInitState());
-    }
-
     /**
      * @depends test_setInitState
      */
@@ -81,7 +86,7 @@ class MachineTest extends TestCase
     }
 
     /**
-     * @throws \Coff\SMF\Exception\MachineException
+     * @throws MachineException
      */
     public function test_allowTransition()
     {
@@ -111,8 +116,6 @@ class MachineTest extends TestCase
      */
     public function test_setMachineState_calls_onTransition()
     {
-
-
         $this->machine = $this->createPartialMock(SampleMachine::class, ['onTransition']);
 
         $this->machine->allowTransition($this->x, $this->y);
@@ -128,5 +131,177 @@ class MachineTest extends TestCase
         $this->machine->setMachineState($this->y);
     }
 
+    /**
+     * @depends test_setInitState
+     */
+    public function test_isTransitionAllowed()
+    {
+        $this->machine->setInitState($this->x);
+        $this->machine->allowTransition($this->x, $this->y);
 
+        $this->assertTrue($this->machine->isTransitionAllowed($this->y));
+    }
+
+    /**
+     * @depends test_setInitState
+     */
+    public function test_isTransitionAllowed_not()
+    {
+        $this->machine->setInitState($this->x);
+        $this->machine->allowTransition($this->x, $this->y);
+
+        $this->assertFalse($this->machine->isTransitionAllowed($this->z));
+    }
+
+    /**
+     * @depends test_setInitState
+     */
+    public function test_isTransitionAllowed_same()
+    {
+        $this->machine->setInitState($this->x);
+
+        // can't transit to the same state
+        $this->assertFalse($this->machine->isTransitionAllowed($this->x));
+    }
+
+    /**
+     * @depends test_setInitState
+     * @depends test_allowTransition
+     * @throws TransitionException
+     */
+    public function test_run_automatic_transition_through_n_states_succ()
+    {
+        $this->machine->setInitState($this->x);
+
+        $this->machine->allowTransition($this->x, $this->y, new AlwaysTrueAssertion());
+        $this->machine->allowTransition($this->y, $this->z, new AlwaysTrueAssertion());
+
+        $this->machine->run();
+
+        $this->assertTrue($this->machine->isMachineState($this->z));
+
+    }
+
+    /**
+     * @depends test_setInitState
+     * @depends test_allowTransition
+     * @throws TransitionException
+     */
+    public function test_run_automatic_transition_through_n_states_stops()
+    {
+        $this->machine->setInitState($this->x);
+
+        $this->machine->allowTransition($this->x, $this->y, new AlwaysTrueAssertion());
+        $this->machine->allowTransition($this->y, $this->z, new AlwaysFalseAssertion());
+
+        $this->machine->run();
+
+        $this->assertFalse($this->machine->isMachineState($this->z));
+        $this->assertTrue($this->machine->isMachineState($this->y));
+
+    }
+
+    /**
+     * @depends test_allowTransition
+     * @depends test_setInitState
+     * @throws MachineException
+     * @throws TransitionException
+     */
+    public function test_run_DefaultCallbackAssertion_succ()
+    {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['assertOneToTwo']);
+
+        $this->machine->allowTransition($this->x, $this->y, new DefaultCallbackAssertion());
+
+        $transition = $this->machine->getTransition($this->x, $this->y);
+
+        $this->machine->expects($this->once())
+            ->method('assertOneToTwo')
+            ->with($this->equalTo($transition))
+            ->willReturn(true);
+
+        $this->machine->setInitState($this->x);
+
+        $this->machine->run();
+
+        $this->assertTrue($this->machine->isMachineState($this->y));
+    }
+
+    /**
+     * @depends test_allowTransition
+     * @depends test_setInitState
+     * @throws MachineException
+     * @throws TransitionException
+     */
+    public function test_run_DefaultCallbackAssertion_fail()
+    {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['assertOneToTwo']);
+
+        $this->machine->allowTransition($this->x, $this->y, new DefaultCallbackAssertion());
+
+        $transition = $this->machine->getTransition($this->x, $this->y);
+
+        $this->machine->expects($this->once())
+            ->method('assertOneToTwo')
+            ->with($this->equalTo($transition))
+            ->willReturn(false);
+
+        $this->machine->setInitState($this->x);
+
+        $this->machine->run();
+
+        $this->assertTrue($this->machine->isMachineState($this->x));
+    }
+
+    /**
+     * @depends test_allowTransition
+     * @depends test_setInitState
+     * @throws MachineException
+     * @throws TransitionException
+     */
+    public function test_run_CommonCallbackAssertion_succ()
+    {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['assertTransition']);
+
+        $this->machine->allowTransition($this->x, $this->y, new CommonCallbackAssertion());
+
+        $transition = $this->machine->getTransition($this->x, $this->y);
+
+        $this->machine->expects($this->once())
+            ->method('assertTransition')
+            ->with($this->equalTo($transition))
+            ->willReturn(true);
+
+        $this->machine->setInitState($this->x);
+
+        $this->machine->run();
+
+        $this->assertTrue($this->machine->isMachineState($this->y));
+    }
+
+    /**
+     * @depends test_allowTransition
+     * @depends test_setInitState
+     * @throws MachineException
+     * @throws TransitionException
+     */
+    public function test_run_CommonCallbackAssertion_fail()
+    {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['assertTransition']);
+
+        $this->machine->allowTransition($this->x, $this->y, new CommonCallbackAssertion());
+
+        $transition = $this->machine->getTransition($this->x, $this->y);
+
+        $this->machine->expects($this->once())
+            ->method('assertTransition')
+            ->with($this->equalTo($transition))
+            ->willReturn(false);
+
+        $this->machine->setInitState($this->x);
+
+        $this->machine->run();
+
+        $this->assertTrue($this->machine->isMachineState($this->x));
+    }
 }
