@@ -1,17 +1,25 @@
-
-*Remark: It's a work-in-progress project! Wanna contribute? Let me know.*
-
 # State Machine Framework for PHP
 
 Maybe state machines are not what you usually do with PHP but when you do... just use this.
+This simple yet powerful framework will keep your state machines within their desired state 
+transition cycles. You can also modify their behavior whilst running or just configure them 
+dynamically and launch. You can define state transition conditions you want based upon 
+anonymous functions or class methods. Fire events on each state transition with your favorite
+event dispatcher.
 
 
 ## Usage example
 
-### State dictionary
+### States' dictionary
 
 ```php
     
+    /**
+     * @method static DRAFT()
+     * @method static SENT()
+     * ... // this should make your IDE believe those method exist
+     *
+     */
     class PetitionEnum extends StateEnum {
         const __default     = self::DRAFT,
               DRAFT         = 'draft',
