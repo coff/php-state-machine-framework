@@ -3,12 +3,22 @@
 namespace Coff\SMF\Example;
 
 use Coff\SMF\Assertion\AlwaysFalseAssertion;
+use Coff\SMF\Exception\MachineException;
+use Coff\SMF\Exception\TransitionException;
 use Coff\SMF\Machine;
 use Coff\SMF\StateEnum;
 use Coff\SMF\Transition\Transition;
 
-include (__DIR__ . '/../vendor/autoload.php');
+include(__DIR__ . '/../vendor/autoload.php');
 
+/**
+ * @method static DRAFT()
+ * @method static SENT()
+ * @method static VOTED()
+ * @method static ACCEPTED()
+ * @method static REJECTED()
+ * @method static CANCELED()
+ */
 class PetitionEnum extends StateEnum
 {
     const __default = self::DRAFT,
@@ -35,7 +45,6 @@ class Petition extends Machine
             // prevents changing state upon assertion when AlwaysFalseAssertion is given
             ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT(), new AlwaysFalseAssertion())
             ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED(), new AlwaysFalseAssertion())
-
             // when no Assertion is given uses DefaultCallbackAssertion which calls assertXToY methods
             ->allowTransition(PetitionEnum::SENT(), PetitionEnum::VOTED())
             ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::ACCEPTED())
@@ -43,12 +52,20 @@ class Petition extends Machine
 
     }
 
+    /**
+     * @throws MachineException
+     * @throws TransitionException
+     */
     public function send()
     {
         // shall throw an exception if current state is not DRAFT because it wasn't allowed transition
         $this->setMachineState(PetitionEnum::SENT());
     }
 
+    /**
+     * @throws MachineException
+     * @throws TransitionException
+     */
     public function cancel()
     {
         // shall throw an exception if current state is not DRAFT because it wasn't allowed transition

@@ -172,6 +172,15 @@ abstract class Machine implements MachineInterface
     }
 
     /**
+     * Returns machine's initial state
+     * @return StateEnum
+     */
+    public function getInitState(): StateEnum
+    {
+        return $this->initState;
+    }
+
+    /**
      * Sets machine's initial state
      * @param StateEnum $state
      * @return $this|MachineInterface
@@ -185,15 +194,6 @@ abstract class Machine implements MachineInterface
         }
 
         return $this;
-    }
-
-    /**
-     * Returns machine's initial state
-     * @return StateEnum
-     */
-    public function getInitState() : StateEnum
-    {
-        return $this->initState;
     }
 
     /**

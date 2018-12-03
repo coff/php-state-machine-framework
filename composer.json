@@ -12,11 +12,15 @@
   "autoload": {
     "psr-4": {
       "Coff\\SMF\\": "src/",
+      "Coff\\SMF\\Test\\": "tests/",
       "Coff\\SMF\\Example\\": "example/"
     }
   },
   "require": {
     "php": "^7.0",
     "garoevans/php-enum": "^1.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.5"
   }
 }

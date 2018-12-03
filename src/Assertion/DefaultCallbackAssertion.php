@@ -45,7 +45,7 @@ class DefaultCallbackAssertion extends CallbackAssertion
         if ($this->object instanceof MachineInterface && $this->transition instanceof TransitionInterface) {
             return call_user_func_array([
                 $this->object,
-                'assert' . ucfirst($this->transition->getFromState()) . 'To' . ucfirst($this->transition->getToState())
+                'assert' . ucfirst($this->transition->getFromState()) . 'To' . ucfirst($this->transition->getToState()),
             ], [$this->transition]);
         } else {
             throw new AssertionException('Callback not configured!');
