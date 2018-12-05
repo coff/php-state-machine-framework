@@ -12,12 +12,14 @@ event dispatcher.
 
 ### States' dictionary
 
+For clarity each state machine should have its own state dictionary defined.
+
 ```php
     
     /**
      * @method static DRAFT()
      * @method static SENT()
-     * ... // this should make your IDE believe those method exist
+     * ... // this should make your IDE believe these methods exist
      *
      */
     class PetitionEnum extends StateEnum {
@@ -28,6 +30,10 @@ event dispatcher.
               ACCEPTED      = 'accepted',
               REJECTED      = 'rejected',
               CANCELED      = 'canceled';
+              
+              // States names should be defined lowercase without spaces and special characters due to 
+              // automatically determined assertion method names when in use with DefaultCallbackAssertion
+              // @todo replace DefaultCallbackAssertion behavior in this matter 
               
     }
 ```
@@ -83,24 +89,25 @@ event dispatcher.
         
         public function assertVotedToAccepted()
         {
+            // condition for transition from state VOTED to ACCEPTED
             return $this->votesYes > $this->votesNo ? true : false;
         }
         
         public function assertVotedToRejected() 
         {
+            // condition for transition from state VOTED to REJECTED
             return $this->votesYes <= $this->votesNo ? true : false;
         }
         
         public function onTransition(Transition $transition) 
         {
-            /* for purpose of this example we only echo this transition but you can 
-               easily dispatch an event from here */ 
+            // for purpose of this example we only echo this transition but you can easily dispatch an event from here 
             echo 'State changed from ' . $transition->getFromState() . ' to ' . $transition->getToState() . PHP_EOL;
         }
     }
 ```
 
-### Machine in-use    
+### Machine in-use 
     
 ```php
 
@@ -123,4 +130,44 @@ event dispatcher.
     // State changed from voted to accepted
     
 ```    
+
+### Transition object
+
+Each transition object should have one or more assertion objects attached.
+
+*Remark: By default (when no assertion object is given as parameter) `Machine::allowTransition()` method attaches `DefaultCallbackAssertion`.*
+
     
+### Assertion behaviors
+
+#### AlwaysTrueAssertion
+
+Results in automatic transition when machine is launched. 
+
+Be aware:
+
+```php
+    $machine
+        ->allowTransition(MachineEnum::ONE(), MachineEnum::TWO(), new AlwaysTrueAssertion)
+        ->allowTransition(MachineEnum::TWO(), MachineEnum::ONE(), new AlwaysTrueAssertion)
+        
+    $machine->run();
+    // this will result in endless loop of state changes
+```
+
+#### AlwaysFalseAssertion
+
+Results in no transition when machine is launched. Use this kind of assertion when machine state is supposed to be 
+changed upon `setMachineState()` method call only. 
+
+#### DefaultCallbackAssertion
+
+Calls `assertXToY` method on machine object (or other object if specified) and makes transition decision upon its return.
+
+#### CommonCallbackAssertion
+
+Calls `assertTransition` method on machine object (or other object if specified) and makes transition decision upon its return.
+
+#### CallbackAssertion
+
+Calls user specified method to assert if state transition should proceed.
