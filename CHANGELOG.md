@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## dev-master
+## v1.0.0
 
 - `MachineTest`: more detailed tests implemented 
 - added installation procedure to README.md  
