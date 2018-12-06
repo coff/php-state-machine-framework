@@ -2,6 +2,7 @@
 
 namespace Coff\SMF;
 
+use Coff\SMF\Exception\TransitionException;
 use Coff\SMF\Transition\Transition;
 
 interface MachineInterface
@@ -48,8 +49,15 @@ interface MachineInterface
 
     /**
      * Runs state machine. Performs assertions for all transitions defined for current state.
-     * @return mixed
      */
     public function run();
+
+    /**
+     * Makes one pass through transitions available in current state, makes assertions and eventually changes state
+     *
+     * @return boolean
+     * @throws TransitionException
+     */
+    public function runOnce(): bool;
 
 }

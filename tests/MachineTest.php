@@ -168,13 +168,28 @@ class MachineTest extends TestCase
      * @depends test_setInitState
      * @depends test_allowTransition
      * @throws TransitionException
+     * @throws MachineException
      */
     public function test_run_automatic_transition_through_n_states_succ()
     {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['onTransition']);
+
         $this->machine->setInitState($this->x);
 
         $this->machine->allowTransition($this->x, $this->y, new AlwaysTrueAssertion());
         $this->machine->allowTransition($this->y, $this->z, new AlwaysTrueAssertion());
+
+
+        $transition1 = $this->machine->getTransition($this->x, $this->y);
+        $transition2 = $this->machine->getTransition($this->y, $this->z);
+
+        $this->machine->expects($this->at(0))
+            ->method('onTransition')
+            ->with($this->equalTo($transition1));
+
+        $this->machine->expects($this->at(1))
+            ->method('onTransition')
+            ->with($this->equalTo($transition2));
 
         $this->machine->run();
 
@@ -186,13 +201,50 @@ class MachineTest extends TestCase
      * @depends test_setInitState
      * @depends test_allowTransition
      * @throws TransitionException
+     * @throws MachineException
+     */
+    public function test_runOnce_automatic_transition_through_1_state_succ()
+    {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['onTransition']);
+
+        $this->machine->setInitState($this->x);
+
+        $this->machine->allowTransition($this->x, $this->y, new AlwaysTrueAssertion());
+        $this->machine->allowTransition($this->y, $this->z, new AlwaysTrueAssertion());
+
+        $transition = $this->machine->getTransition($this->x, $this->y);
+
+        $this->machine->expects($this->once())
+            ->method('onTransition')
+            ->with($this->equalTo($transition));
+
+
+        $this->machine->runOnce();
+
+        $this->assertTrue($this->machine->isMachineState($this->y));
+
+    }
+
+    /**
+     * @depends test_setInitState
+     * @depends test_allowTransition
+     * @throws TransitionException
+     * @throws MachineException
      */
     public function test_run_automatic_transition_through_n_states_stops()
     {
+        $this->machine = $this->createPartialMock(SampleMachine::class, ['onTransition']);
+
         $this->machine->setInitState($this->x);
 
         $this->machine->allowTransition($this->x, $this->y, new AlwaysTrueAssertion());
         $this->machine->allowTransition($this->y, $this->z, new AlwaysFalseAssertion());
+
+        $transition1 = $this->machine->getTransition($this->x, $this->y);
+
+        $this->machine->expects($this->once())
+            ->method('onTransition')
+            ->with($this->equalTo($transition1));
 
         $this->machine->run();
 

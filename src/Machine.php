@@ -214,30 +214,42 @@ abstract class Machine implements MachineInterface
      */
     public function run()
     {
-
         do {
-            $result = false;
-
-            $allowedTrans = $this->getAllowedTransitions();
-
-            /**
-             * @var StateEnum $nextState
-             * @var Transition $transition
-             */
-            foreach ($allowedTrans as $nextState => $transition) {
-
-                $result = $transition->assert();
-
-                if (true === $result) {
-                    $this->machineState = $transition->getToState();
-
-                    $this->onTransition($transition);
-                }
-            }
+            $result = $this->runOnce();
 
         } while (true == $result);
 
         return $this->machineState;
+    }
+
+    /**
+     * Makes one pass through transitions available in current state
+     *
+     * @return boolean
+     * @throws TransitionException
+     */
+    public function runOnce(): bool
+    {
+        $result = false;
+
+        $allowedTrans = $this->getAllowedTransitions();
+
+        /**
+         * @var StateEnum $nextState
+         * @var Transition $transition
+         */
+        foreach ($allowedTrans as $nextState => $transition) {
+
+            $result = $transition->assert();
+
+            if (true === $result) {
+                $this->machineState = $transition->getToState();
+
+                $this->onTransition($transition);
+            }
+        }
+
+        return $result;
     }
 
     /**

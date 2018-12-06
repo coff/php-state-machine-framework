@@ -7,6 +7,23 @@ dynamically and launch. You can define state transition conditions you want base
 anonymous functions or class methods. Fire events on each state transition with your favorite
 event dispatcher.
 
+## Installation
+
+Easiest way is to use composer:
+
+```bash
+$ composer require coff/state-machine-framework
+```
+
+Alternatively just clone repository:
+```bash
+$ git clone https://github.com/coff/php-state-machine-framework.git
+```
+
+and then checkout specific tag:
+```bash
+$ git checkout tags/v0.3
+```
 
 ## Usage example
 
