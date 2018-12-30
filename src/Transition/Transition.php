@@ -6,6 +6,7 @@ namespace Coff\SMF\Transition;
 use Coff\SMF\Assertion\Assertion;
 use Coff\SMF\Assertion\AssertionInterface;
 use Coff\SMF\Exception\TransitionException;
+use Coff\SMF\MachineInterface;
 use Coff\SMF\StateEnum;
 
 class Transition implements TransitionInterface
@@ -64,11 +65,11 @@ class Transition implements TransitionInterface
     }
 
     /**
-     * @param Assertion $assertion
+     * @param AssertionInterface $assertion
      * @param null $keyName
      * @return $this
      */
-    public function addAssertion(Assertion $assertion, $keyName = null)
+    public function addAssertion(AssertionInterface $assertion, $keyName = null)
     {
         if (null === $keyName) {
             $this->assertions[] = $assertion;
@@ -112,36 +113,47 @@ class Transition implements TransitionInterface
      * Replace all assertions
      * @param array $assertions
      * @return $this
+     * @throws TransitionException
      */
     public function replaceAssertions(array $assertions)
     {
+        foreach ($assertions as $assertion) {
+            if (!$assertion instanceof AssertionInterface) {
+                throw new TransitionException('Only Assertion objects allowed!');
+            }
+        }
+
         $this->assertions = $assertions;
 
         return $this;
     }
 
     /**
+     * @param MachineInterface $machine
      * @return bool
-     * @throws TransitionException
      */
-    public function assert(): bool
+    public function assert(MachineInterface $machine): bool
     {
         if (!$this->assertions) {
-            throw new TransitionException('No assertions defined');
+            return false;
         }
 
         // check all assertion objects attached
         foreach ($this->assertions as $assertion) {
-            if (!$assertion instanceof AssertionInterface) {
-                throw new TransitionException('Assertion has to implement AssertionInterface');
-            }
 
-            if (false === $assertion->make()) {
+            if (false === $assertion->make($machine, $this)) {
                 return false;
             }
         }
 
+        $this->onTransition($machine);
+
         // defaults to true otherwise
         return true;
+    }
+
+    public function onTransition(MachineInterface $machine)
+    {
+        // does nothing in in basic implementation
     }
 }

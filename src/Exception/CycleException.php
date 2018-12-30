@@ -4,7 +4,7 @@
 namespace Coff\SMF\Exception;
 
 
-class MachineException extends SMFException
+class SchemaException extends SMFException
 {
 
 }

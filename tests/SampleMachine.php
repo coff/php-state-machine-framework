@@ -5,7 +5,9 @@ namespace Coff\SMF\Test;
 
 
 use Coff\SMF\Machine;
+use Coff\SMF\MachineInterface;
 use Coff\SMF\StateEnum;
+use Coff\SMF\Transition\TransitionInterface;
 
 class SampleMachine extends Machine
 {
@@ -19,7 +21,7 @@ class SampleMachine extends Machine
 
     }
 
-    public function test()
+    public function test(MachineInterface $machine, TransitionInterface $transition, $extra = null)
     {
 
     }

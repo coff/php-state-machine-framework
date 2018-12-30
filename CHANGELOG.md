@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## dev-decoupled-transition-schema
+
+- [BC break] decoupled transition `Schema` from actual state machine for easier DI of a whole schema
+- [BC break] removed `Machine::allowTransition()` and several other transition related methods from `MachineInterface` 
+  and `Machine` implementation
+- refactored Exception classes into one hierarchy with one global `SMFException`
+- [BC break] `CommonCallbackAssertion` and `DefaultCallbackAssertion` rebuilt to run-time machine object so methods
+  `setObject()` and `setTransition` are no longer valid
+- [BC break] `Transition` class now uses run-time machine object so method `assert()` got additional parameter `$machine`
+- [BC break] `Schema::addTransition()` (before `Machine::addTransition()`) now throws `ConfigurationException` instead of
+  `MachineException`
+- added `TransitionInterface::onTransition()` method
+- [BC break] `Machine::setMachineState` now throws `ConfigurationException` when `Schema` object not set
+- unit tests rewritten
+- [BC break] `Transition::assert()` doesn't throw `TransitionException` anymore, false is returned if there are no 
+  assertions defined 
+
 ## v1.0.0
 
 - `MachineTest`: more detailed tests implemented 

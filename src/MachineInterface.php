@@ -8,17 +8,10 @@ use Coff\SMF\Transition\Transition;
 interface MachineInterface
 {
     /**
-     * @param StateEnum $state
+     * Initializes machine and sets its initial state based upon schema
      * @return $this
      */
-    public function setInitState(StateEnum $state);
-
-
-    /**
-     * Returns Machine's initial state
-     * @return StateEnum
-     */
-    public function getInitState();
+    public function init();
 
     /**
      * Returns

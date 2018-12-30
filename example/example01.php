@@ -1,8 +1,11 @@
-<?php
+<?php /** @noinspection ALL */
 
 namespace Coff\SMF\Example;
 
 use Coff\SMF\Assertion\AlwaysFalseAssertion;
+use Coff\SMF\Schema\Schema;
+use Coff\SMF\Exception\ConfigurationException;
+use Coff\SMF\Exception\SchemaException;
 use Coff\SMF\Exception\MachineException;
 use Coff\SMF\Exception\TransitionException;
 use Coff\SMF\Machine;
@@ -36,25 +39,10 @@ class Petition extends Machine
 
     protected $votesYes, $votesNo;
 
-    public function init()
-    {
-        $this->setInitState(PetitionEnum::DRAFT());
-
-        // defines machine's allowed behavior, when no Assertion is given uses DefaultCallbackAssertion
-        $this
-            // prevents changing state upon assertion when AlwaysFalseAssertion is given
-            ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT(), new AlwaysFalseAssertion())
-            ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED(), new AlwaysFalseAssertion())
-            // when no Assertion is given uses DefaultCallbackAssertion which calls assertXToY methods
-            ->allowTransition(PetitionEnum::SENT(), PetitionEnum::VOTED())
-            ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::ACCEPTED())
-            ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::REJECTED());
-
-    }
-
     /**
-     * @throws MachineException
      * @throws TransitionException
+     * @throws ConfigurationException
+     * @throws SchemaException
      */
     public function send()
     {
@@ -63,7 +51,8 @@ class Petition extends Machine
     }
 
     /**
-     * @throws MachineException
+     * @throws ConfigurationException
+     * @throws SchemaException
      * @throws TransitionException
      */
     public function cancel()
@@ -104,9 +93,22 @@ class Petition extends Machine
     }
 }
 
+$Schema = new Schema();
+
+$schema
+    ->setInitState(PetitionEnum::DRAFT())
+    // prevents changing state upon assertion when AlwaysFalseAssertion is given
+    ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT(), new AlwaysFalseAssertion())
+    ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED(), new AlwaysFalseAssertion())
+    // when no Assertion is given uses DefaultCallbackAssertion which calls assertXToY methods
+    ->allowTransition(PetitionEnum::SENT(), PetitionEnum::VOTED())
+    ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::ACCEPTED())
+    ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::REJECTED());
 
 $p = new Petition();
-$p->init();
+$p
+    ->setSchema($schema)
+    ->init();
 
 echo 'Running...' . PHP_EOL;
 $p->run();

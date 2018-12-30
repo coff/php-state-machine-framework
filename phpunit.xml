@@ -11,7 +11,9 @@
          syntaxCheck="false">
     <testsuites>
         <testsuite name="Application Test Suite">
-            <directory>./tests/</directory>
+            <directory>./tests/Machine</directory>
+            <directory>./tests/Schema</directory>
+            <directory>./tests/Assertion</directory>
         </testsuite>
     </testsuites>
     <filter>

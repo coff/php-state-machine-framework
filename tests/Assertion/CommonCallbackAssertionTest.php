@@ -5,7 +5,6 @@ namespace Coff\SMF\Test;
 
 
 use Coff\SMF\Assertion\CommonCallbackAssertion;
-use Coff\SMF\Exception\AssertionException;
 use Coff\SMF\Machine;
 use Coff\SMF\Transition\Transition;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -31,28 +30,16 @@ class CommonCallbackAssertionTest extends TestCase
     }
 
     /**
-     * @throws AssertionException
+     *
      */
     public function test_make()
     {
-        $this->assertion->setObject($this->object);
-        $this->assertion->setTransition($this->transition);
-
         $this->object
             ->method('assertTransition')
             ->with($this->equalTo($this->transition))
             ->willReturn(true);
 
-        $this->assertEquals(true, $this->assertion->make());
+        $this->assertEquals(true, $this->assertion->make($this->object, $this->transition));
     }
 
-    /**
-     * @throws AssertionException
-     */
-    public function test_make_not_configured()
-    {
-        $this->expectException(AssertionException::class);
-
-        $this->assertion->make();
-    }
 }

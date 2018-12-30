@@ -4,6 +4,8 @@ namespace Coff\SMF\Assertion;
 
 
 use Coff\SMF\Exception\AssertionException;
+use Coff\SMF\MachineInterface;
+use Coff\SMF\Transition\TransitionInterface;
 
 class CallbackAssertion extends Assertion
 {
@@ -12,13 +14,13 @@ class CallbackAssertion extends Assertion
     protected $callback;
 
     /** @var array */
-    protected $params;
+    protected $extraParams = [];
 
-    public function __construct(callable $callback = null, array $params = [])
+    public function __construct(callable $callback = null, array $extra_params = [])
     {
         $this->callback = $callback;
 
-        $this->params = $params;
+        $this->extraParams = $extra_params;
     }
 
     public function setCallback(callable $callback)
@@ -28,21 +30,23 @@ class CallbackAssertion extends Assertion
         return $this;
     }
 
-    public function setParams($params = [])
+    public function setExtraParams($extra_params = [])
     {
-        $this->params = $params;
+        $this->extraParams = $extra_params;
 
         return $this;
     }
 
     /**
+     * @param MachineInterface $machine
+     * @param TransitionInterface $transition
      * @return bool
      * @throws AssertionException
      */
-    public function make(): bool
+    public function make(MachineInterface $machine, TransitionInterface $transition): bool
     {
         if ($this->callback) {
-            return call_user_func_array($this->callback, $this->params);
+            return call_user_func_array($this->callback, array_merge([$machine, $transition], $this->extraParams));
         } else {
             throw new AssertionException('Callback not configured!');
         }

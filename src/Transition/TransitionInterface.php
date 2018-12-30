@@ -4,6 +4,7 @@
 namespace Coff\SMF\Transition;
 
 
+use Coff\SMF\MachineInterface;
 use Coff\SMF\StateEnum;
 
 interface TransitionInterface
@@ -16,5 +17,11 @@ interface TransitionInterface
 
     public function getToState(): StateEnum;
 
-    public function assert(): bool;
+    public function assert(MachineInterface $machine): bool;
+
+    /**
+     * Method called when this transition occurs. Allows e.g. external machine control
+     * @param MachineInterface $machine
+     */
+    public function onTransition(MachineInterface $machine);
 }

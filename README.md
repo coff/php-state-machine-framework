@@ -2,7 +2,7 @@
 
 Maybe state machines are not what you usually do with PHP but when you do... just use this.
 This simple yet powerful framework will keep your state machines within their desired state 
-transition cycles. You can also modify their behavior whilst running or just configure them 
+transition schemas. You can also modify their behavior whilst running or just configure them 
 dynamically and launch. You can define state transition conditions you want based upon 
 anonymous functions or class methods. Fire events on each state transition with your favorite
 event dispatcher.
@@ -60,23 +60,6 @@ For clarity each state machine should have its own state dictionary defined.
     class Petition extends Machine {
         
         protected $votesYes, $votesNo;
-    
-        public function init() {
-            $this->setInitState(PetitionEnum::DRAFT());
-            
-            // defines machine's allowed behavior
-            $this
-                // prevents changing state upon assertion when AlwaysFalseAssertion is given
-                ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT(), new AlwaysFalseAssertion())
-                ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED(), new AlwaysFalseAssertion())
-                
-                // when no Assertion is given uses DefaultCallbackAssertion which calls assertXToY methods
-                ->allowTransition(PetitionEnum::SENT(), PetitionEnum::VOTED())
-                ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::ACCEPTED())
-                ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::REJECTED())
-                ;
-            
-        }
         
         public function send() 
         {
@@ -124,12 +107,38 @@ For clarity each state machine should have its own state dictionary defined.
     }
 ```
 
+### Machine's transition schema definition
+
+As of version 2 transition schema is decoupled from actual machine so it can be easily injected into any machine object
+or changed when is necessary to modify machine's behavior later.
+
+```php
+
+$schema = new Schema();
+
+$schema
+    ->setInitState(PetitionEnum::DRAFT())
+    // prevents changing state upon assertion when AlwaysFalseAssertion is given
+    ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::SENT(), new AlwaysFalseAssertion())
+    ->allowTransition(PetitionEnum::DRAFT(), PetitionEnum::CANCELED(), new AlwaysFalseAssertion())
+    // when no Assertion is given uses DefaultCallbackAssertion which calls assertXToY methods
+    ->allowTransition(PetitionEnum::SENT(), PetitionEnum::VOTED())
+    ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::ACCEPTED())
+    ->allowTransition(PetitionEnum::VOTED(), PetitionEnum::REJECTED());
+    
+```
+
+*Remark: By default (when no assertion object is given as parameter) `Schema::allowTransition()` method attaches `DefaultCallbackAssertion`.*
+
+
 ### Machine in-use 
     
 ```php
 
     $p = new Petition();
-    $p->init();
+    $p
+        ->setSchema($schema)
+        ->init();
     
     $p->run();
     // <nothing happens>
@@ -150,9 +159,32 @@ For clarity each state machine should have its own state dictionary defined.
 
 ### Transition object
 
-Each transition object should have one or more assertion objects attached.
+Defined as change from one state to another. Has two basic functions:
+- allows to assert if this exact transition is valid considering defined transition conditions by  them via 
+  attached assertions or conditions defined within transition class itself
+- allows to run certain code in `Transition::onTransition()` method when actual transition happens; this functionality
+  doubles that defined within machine for situations when it's required to control it externally from within transition
+  object. As well as with `Machine::onTransition()` method we can also dispatch events from here or use one common \
+  transition object for several different machines sharing some functionality. 
 
-*Remark: By default (when no assertion object is given as parameter) `Machine::allowTransition()` method attaches `DefaultCallbackAssertion`.*
+Example:
+```php
+
+    class SendToVotedTransition extends Transition {
+        public function assert(MachineInterface $machine) 
+        {
+            return $machine->hasVotes() ? true : false;    
+        }
+        
+        public function onTransition(MachineInterface $machine)
+        {
+            $machine->getPetitionStats()->incrementVotedCount();
+        }
+    } 
+
+```
+
+Each transition object should have one or more assertion objects attached.
 
     
 ### Assertion behaviors
@@ -164,7 +196,7 @@ Results in automatic transition when machine is launched.
 Be aware:
 
 ```php
-    $machine
+    $machine->getSchema()
         ->allowTransition(MachineEnum::ONE(), MachineEnum::TWO(), new AlwaysTrueAssertion)
         ->allowTransition(MachineEnum::TWO(), MachineEnum::ONE(), new AlwaysTrueAssertion)
         
@@ -179,11 +211,11 @@ changed upon `setMachineState()` method call only.
 
 #### DefaultCallbackAssertion
 
-Calls `assertXToY` method on machine object (or other object if specified) and makes transition decision upon its return.
+Calls `assertXToY` method on machine object and makes transition decision upon its return.
 
 #### CommonCallbackAssertion
 
-Calls `assertTransition` method on machine object (or other object if specified) and makes transition decision upon its return.
+Calls `assertTransition` method on machine object and makes transition decision upon its return.
 
 #### CallbackAssertion
 
