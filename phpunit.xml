@@ -14,6 +14,7 @@
             <directory>./tests/Machine</directory>
             <directory>./tests/Schema</directory>
             <directory>./tests/Assertion</directory>
+            <directory>./tests/Transition</directory>
         </testsuite>
     </testsuites>
     <filter>

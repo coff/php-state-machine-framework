@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## dev-decoupled-transition-schema
+## dev-decoupled-transition-cycle
 
 - [BC break] decoupled transition `Schema` from actual state machine for easier DI of a whole schema
 - [BC break] removed `Machine::allowTransition()` and several other transition related methods from `MachineInterface` 
@@ -15,7 +15,8 @@
 - [BC break] `Machine::setMachineState` now throws `ConfigurationException` when `Schema` object not set
 - unit tests rewritten
 - [BC break] `Transition::assert()` doesn't throw `TransitionException` anymore, false is returned if there are no 
-  assertions defined 
+  assertions defined
+- `Transition` unit tests written 
 
 ## v1.0.0
 
