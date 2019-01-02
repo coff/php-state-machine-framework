@@ -4,10 +4,10 @@
 namespace Coff\SMF\Test;
 
 
-use Coff\SMF\Schema\Schema;
 use Coff\SMF\Exception\ConfigurationException;
 use Coff\SMF\Exception\SchemaException;
 use Coff\SMF\Exception\TransitionException;
+use Coff\SMF\Schema\Schema;
 use Coff\SMF\Transition\Transition;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

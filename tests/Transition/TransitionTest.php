@@ -29,21 +29,23 @@ class TransitionTest extends TestCase
     }
 
 
-    public function test_assert_w_no_assertions() {
+    public function test_assert_w_no_assertions()
+    {
 
         $result = $this->transition->assert($this->machine);
 
         $this->assertFalse($result);
     }
 
-    public function test_assert_w_assertion_true() {
+    public function test_assert_w_assertion_true()
+    {
 
         $this->transition->expects($this->once())
             ->method('onTransition')
             ->with($this->equalTo($this->machine));
 
         $this->assertion->expects($this->once())
-            ->method( 'make')
+            ->method('make')
             ->with($this->equalTo($this->machine), $this->equalTo($this->transition))
             ->willReturn(true);
 
@@ -54,10 +56,11 @@ class TransitionTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function test_assert_w_assertion_false() {
+    public function test_assert_w_assertion_false()
+    {
 
         $this->assertion->expects($this->once())
-            ->method( 'make')
+            ->method('make')
             ->with($this->equalTo($this->machine), $this->equalTo($this->transition))
             ->willReturn(false);
 

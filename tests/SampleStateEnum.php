@@ -7,6 +7,8 @@ namespace Coff\SMF\Test;
 use Coff\SMF\StateEnum;
 
 /**
+ * Sample State's dictionary
+ *
  * @method static ONE()
  * @method static TWO()
  * @method static THREE()
