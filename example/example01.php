@@ -3,12 +3,11 @@
 namespace Coff\SMF\Example;
 
 use Coff\SMF\Assertion\AlwaysFalseAssertion;
-use Coff\SMF\Schema\Schema;
 use Coff\SMF\Exception\ConfigurationException;
 use Coff\SMF\Exception\SchemaException;
-use Coff\SMF\Exception\MachineException;
 use Coff\SMF\Exception\TransitionException;
 use Coff\SMF\Machine;
+use Coff\SMF\Schema\Schema;
 use Coff\SMF\StateEnum;
 use Coff\SMF\Transition\Transition;
 

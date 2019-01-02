@@ -22,7 +22,7 @@ $ git clone https://github.com/coff/php-state-machine-framework.git
 
 and then checkout specific tag:
 ```bash
-$ git checkout tags/v0.3
+$ git checkout tags/v2.0.0
 ```
 
 ## Usage example

@@ -2,15 +2,16 @@
 
 namespace Coff\SMF;
 
-use Coff\SMF\Schema\Schema;
 use Coff\SMF\Exception\ConfigurationException;
 use Coff\SMF\Exception\TransitionException;
+use Coff\SMF\Schema\Schema;
 use Coff\SMF\Transition\Transition;
 
 abstract class Machine implements MachineInterface
 {
     /** @var Schema */
     protected $schema;
+
     /** @var StateEnum */
     private $machineState;
 
@@ -52,7 +53,6 @@ abstract class Machine implements MachineInterface
         $this->schema = $schema;
         return $this;
     }
-
 
     /**
      * Verifies if machine's current state is equal to state given in parameter

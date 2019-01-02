@@ -49,10 +49,8 @@ class Schema
      */
     public function getAllowedTransitions(StateEnum $state): array
     {
-
         return isset($this->allowedTransitions[(string)$state]) ? $this->allowedTransitions[(string)$state] : [];
     }
-
 
     /**
      * Verifies if transition is allowed from current state to the state given in parameter
@@ -64,7 +62,6 @@ class Schema
     {
         return isset($this->allowedTransitions[(string)$fromState][(string)$toState]) ? true : false;
     }
-
 
     /**
      * @param StateEnum $stateFrom
@@ -109,7 +106,6 @@ class Schema
         return $this;
     }
 
-
     /**
      * Adds transition object to Machine
      * @param TransitionInterface $transition
@@ -118,7 +114,6 @@ class Schema
      */
     public function addTransition(TransitionInterface $transition)
     {
-
         if (!$transition->getFromState() instanceof StateEnum) {
             throw new ConfigurationException('Transition is not ready to be set as allowed!');
         }

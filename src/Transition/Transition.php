@@ -152,6 +152,9 @@ class Transition implements TransitionInterface
         return true;
     }
 
+    /**
+     * @param MachineInterface $machine
+     */
     public function onTransition(MachineInterface $machine)
     {
         // does nothing in in basic implementation

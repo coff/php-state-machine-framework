@@ -9,14 +9,32 @@ use Coff\SMF\StateEnum;
 
 interface TransitionInterface
 {
+    /**
+     * @param StateEnum $state
+     * @return $this
+     */
     public function setFromState(StateEnum $state);
 
+    /**
+     * @param StateEnum $state
+     * @return $this
+     */
     public function setToState(StateEnum $state);
 
+    /**
+     * @return StateEnum
+     */
     public function getFromState(): StateEnum;
 
+    /**
+     * @return StateEnum
+     */
     public function getToState(): StateEnum;
 
+    /**
+     * @param MachineInterface $machine
+     * @return bool
+     */
     public function assert(MachineInterface $machine): bool;
 
     /**

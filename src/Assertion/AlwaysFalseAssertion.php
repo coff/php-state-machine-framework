@@ -7,7 +7,8 @@ use Coff\SMF\MachineInterface;
 use Coff\SMF\Transition\TransitionInterface;
 
 /**
- * False Assertion for unit testing
+ * Class AlwaysFalseAssertion
+ * Assertion always returning false
  */
 class AlwaysFalseAssertion extends Assertion
 {
